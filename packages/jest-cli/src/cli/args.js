@@ -349,7 +349,7 @@ export const options = {
     type: 'boolean',
   },
   notifyMode: {
-    default: undefined,
+    default: 'always',
     description: 'Specifies when notifications will appear for test results.',
     type: 'string',
   },
