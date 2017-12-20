@@ -467,6 +467,7 @@ export default function normalize(options: InitialOptions, argv: Argv) {
       case 'name':
       case 'noStackTrace':
       case 'notify':
+      case 'notifyMode':
       case 'onlyChanged':
       case 'outputFile':
       case 'passWithNoTests':
