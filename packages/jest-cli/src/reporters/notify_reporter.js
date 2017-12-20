@@ -23,6 +23,7 @@ const icon = path.resolve(__dirname, '../assets/jest_logo.png');
 export default class NotifyReporter extends BaseReporter {
   _startRun: (globalConfig: GlobalConfig) => *;
   _globalConfig: GlobalConfig;
+  _previousSuccess: boolean;
 
   constructor(
     globalConfig: GlobalConfig,
@@ -31,13 +32,21 @@ export default class NotifyReporter extends BaseReporter {
     super();
     this._globalConfig = globalConfig;
     this._startRun = startRun;
+    this._previousSuccess = false;
+    this._firstRun = true;
   }
 
   onRunComplete(contexts: Set<Context>, result: AggregatedResult): void {
     const success =
       result.numFailedTests === 0 && result.numRuntimeErrorTestSuites === 0;
 
-    if (success) {
+    if (
+      success &&
+      (this._globalConfig === 'always' ||
+        this._globalConfig === 'success' ||
+        (this._globalConfig === 'change' &&
+          (!this._previousSuccess || this._firstRun)))
+    ) {
       const title = util.format('%d%% Passed', 100);
       const message = util.format(
         (isDarwin ? '\u2705 ' : '') + '%d tests passed',
@@ -45,7 +54,15 @@ export default class NotifyReporter extends BaseReporter {
       );
 
       notifier.notify({icon, message, title});
-    } else {
+      this._previousSuccess = true;
+      this._firstRun = false;
+    } else if (
+      !success &&
+      (this._globalConfig === 'always' ||
+        this._globalConfig === 'failure' ||
+        (this._globalConfig === 'change' &&
+          (this._previousSuccess || this._firstRun)))
+    ) {
       const failed = result.numFailedTests / result.numTotalTests;
 
       const title = util.format(
@@ -81,6 +98,8 @@ export default class NotifyReporter extends BaseReporter {
           }
         },
       );
+      this._previousSuccess = false;
+      this._firstRun = false;
     }
   }
 }

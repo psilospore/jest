@@ -384,6 +384,18 @@ Default: `false`
 
 Activates notifications for test results.
 
+### `notifyMode` [string]
+
+Default: `always`
+
+Specifies notification mode.
+
+#### Modes
+* `always`: always send a notification.
+* `failure`: send a notification when tests fail.
+* `success`: send a notification when tests pass.
+* `change`: send a notification when the status changed.
+
 ### `preset` [string]
 
 Default: `undefined`

@@ -348,6 +348,11 @@ export const options = {
     description: 'Activates notifications for test results.',
     type: 'boolean',
   },
+  notifyMode: {
+    default: undefined,
+    description: 'Specifies when notifications will appear for test results.',
+    type: 'string',
+  },
   onlyChanged: {
     alias: 'o',
     default: undefined,
