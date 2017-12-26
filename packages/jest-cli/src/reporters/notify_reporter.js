@@ -15,6 +15,7 @@ import path from 'path';
 import util from 'util';
 import notifier from 'node-notifier';
 import BaseReporter from './base_reporter';
+import type {TestSchedulerContext} from '../test_scheduler';
 
 const isDarwin = process.platform === 'darwin';
 
@@ -23,17 +24,16 @@ const icon = path.resolve(__dirname, '../assets/jest_logo.png');
 export default class NotifyReporter extends BaseReporter {
   _startRun: (globalConfig: GlobalConfig) => *;
   _globalConfig: GlobalConfig;
-  _previousSuccess: boolean;
-
+  _context: TestSchedulerContext;
   constructor(
     globalConfig: GlobalConfig,
     startRun: (globalConfig: GlobalConfig) => *,
+    context: TestSchedulerContext,
   ) {
     super();
     this._globalConfig = globalConfig;
     this._startRun = startRun;
-    this._previousSuccess = false;
-    this._firstRun = true;
+    this._context = context;
   }
 
   onRunComplete(contexts: Set<Context>, result: AggregatedResult): void {
@@ -46,7 +46,8 @@ export default class NotifyReporter extends BaseReporter {
       success &&
       (notifyMode === 'always' ||
         notifyMode === 'success' ||
-        (notifyMode === 'change' && (!this._previousSuccess || this._firstRun)))
+        (notifyMode === 'change' &&
+          (!this._context.previousSuccess || this._context.firstRun)))
     ) {
       const title = util.format('%d%% Passed', 100);
       const message = util.format(
@@ -55,13 +56,14 @@ export default class NotifyReporter extends BaseReporter {
       );
 
       notifier.notify({icon, message, title});
-      this._previousSuccess = true;
-      this._firstRun = false;
+      this._context.previousSuccess = true;
+      this._context.firstRun = false;
     } else if (
       !success &&
       (notifyMode === 'always' ||
         notifyMode === 'failure' ||
-        (notifyMode === 'change' && (this._previousSuccess || this._firstRun)))
+        (notifyMode === 'change' &&
+          (this._context.previousSuccess || this._context.firstRun)))
     ) {
       const failed = result.numFailedTests / result.numTotalTests;
 
@@ -98,8 +100,8 @@ export default class NotifyReporter extends BaseReporter {
           }
         },
       );
-      this._previousSuccess = false;
-      this._firstRun = false;
+      this._context.previousSuccess = false;
+      this._context.firstRun = false;
     }
   }
 }

@@ -75,6 +75,12 @@ const processResults = (runResults, options) => {
   return options.onComplete && options.onComplete(runResults);
 };
 
+// eslint-disable-next-line prefer-const
+let testSchedulerContext = {
+  firstRun: true,
+  previousSuccess: true,
+};
+
 export default (async function runJest({
   contexts,
   globalConfig,
@@ -179,9 +185,13 @@ export default (async function runJest({
   // paths when printing.
   setConfig(contexts, {cwd: process.cwd()});
 
-  const results = await new TestScheduler(globalConfig, {
-    startRun,
-  }).scheduleTests(allTests, testWatcher);
+  const results = await new TestScheduler(
+    globalConfig,
+    {
+      startRun,
+    },
+    testSchedulerContext,
+  ).scheduleTests(allTests, testWatcher);
 
   sequencer.cacheResults(allTests, results);
 
