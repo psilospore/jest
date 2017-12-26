@@ -48,7 +48,11 @@ export default class TestScheduler {
   _options: TestSchedulerOptions;
   _context: TestSchedulerContext;
 
-  constructor(globalConfig: GlobalConfig, options: TestSchedulerOptions, context: TestSchedulerContext) {
+  constructor(
+    globalConfig: GlobalConfig,
+    options: TestSchedulerOptions,
+    context: TestSchedulerContext,
+  ) {
     this._dispatcher = new ReporterDispatcher();
     this._globalConfig = globalConfig;
     this._options = options;
@@ -261,7 +265,11 @@ export default class TestScheduler {
 
     if (notify) {
       this.addReporter(
-        new NotifyReporter(this._globalConfig, this._options.startRun, this._context),
+        new NotifyReporter(
+          this._globalConfig,
+          this._options.startRun,
+          this._context,
+        ),
       );
     }
 
