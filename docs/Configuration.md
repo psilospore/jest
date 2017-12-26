@@ -391,6 +391,7 @@ Default: `always`
 Specifies notification mode.
 
 #### Modes
+
 * `always`: always send a notification.
 * `failure`: send a notification when tests fail.
 * `success`: send a notification when tests pass.
