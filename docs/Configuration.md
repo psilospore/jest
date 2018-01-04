@@ -396,6 +396,8 @@ Specifies notification mode.
 * `failure`: send a notification when tests fail.
 * `success`: send a notification when tests pass.
 * `change`: send a notification when the status changed.
+* `success-change`: send a notification when tests pass or once when it fails.
+* `failure-success`: send a notification when tests fails or once when it passes.
 
 ### `preset` [string]
 

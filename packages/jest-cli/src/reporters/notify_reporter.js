@@ -41,13 +41,21 @@ export default class NotifyReporter extends BaseReporter {
       result.numFailedTests === 0 && result.numRuntimeErrorTestSuites === 0;
 
     const notifyMode = this._globalConfig.notifyMode;
+    const statusChanged =
+      this._context.previousSuccess !== success || this._context.firstRun;
+
+    const successChange =
+      (notifyMode === 'change' && statusChanged && success) ||
+      (notifyMode === 'success-change' && success) ||
+      (notifyMode === 'success-change' && statusChanged);
+    const failureChange =
+      (notifyMode === 'change' && statusChanged && !success) ||
+      (notifyMode === 'failure-change' && !success) ||
+      (notifyMode === 'failure-change' && statusChanged);
 
     if (
       success &&
-      (notifyMode === 'always' ||
-        notifyMode === 'success' ||
-        (notifyMode === 'change' &&
-          (!this._context.previousSuccess || this._context.firstRun)))
+      (notifyMode === 'always' || notifyMode === 'success' || successChange)
     ) {
       const title = util.format('%d%% Passed', 100);
       const message = util.format(
@@ -60,10 +68,7 @@ export default class NotifyReporter extends BaseReporter {
       this._context.firstRun = false;
     } else if (
       !success &&
-      (notifyMode === 'always' ||
-        notifyMode === 'failure' ||
-        (notifyMode === 'change' &&
-          (this._context.previousSuccess || this._context.firstRun)))
+      (notifyMode === 'always' || notifyMode === 'failure' || failureChange)
     ) {
       const failed = result.numFailedTests / result.numTotalTests;
 

@@ -75,8 +75,7 @@ const processResults = (runResults, options) => {
   return options.onComplete && options.onComplete(runResults);
 };
 
-// eslint-disable-next-line prefer-const
-let testSchedulerContext = {
+const testSchedulerContext = {
   firstRun: true,
   previousSuccess: true,
 };
