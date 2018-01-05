@@ -388,7 +388,7 @@ Activates notifications for test results.
 
 Default: `always`
 
-Specifies notification mode.
+Specifies notification mode. Requires `notify: true`.
 
 #### Modes
 

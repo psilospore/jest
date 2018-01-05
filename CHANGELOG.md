@@ -75,7 +75,7 @@ None
 
 ### Features
 
-* `[jest-cli]` created `--notifyMode` added to specify when to be notified.
+* `[jest-cli]` Added --notifyMode to specify when to be notified.
   ([#5125](https://github.com/facebook/jest/pull/5125))
 * `[jest-message-util]` Add codeframe to test assertion failures
   ([#5087](https://github.com/facebook/jest/pull/5087))
