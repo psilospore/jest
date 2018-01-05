@@ -43,19 +43,13 @@ export default class NotifyReporter extends BaseReporter {
     const notifyMode = this._globalConfig.notifyMode;
     const statusChanged =
       this._context.previousSuccess !== success || this._context.firstRun;
-
-    const successChange =
-      (notifyMode === 'change' && statusChanged && success) ||
-      (notifyMode === 'success-change' && success) ||
-      (notifyMode === 'success-change' && statusChanged);
-    const failureChange =
-      (notifyMode === 'change' && statusChanged && !success) ||
-      (notifyMode === 'failure-change' && !success) ||
-      (notifyMode === 'failure-change' && statusChanged);
-
     if (
       success &&
-      (notifyMode === 'always' || notifyMode === 'success' || successChange)
+      (notifyMode === 'always' ||
+        notifyMode === 'success' ||
+        notifyMode === 'success-change' ||
+        (notifyMode === 'change' && statusChanged) ||
+        (notifyMode === 'failure-change' && statusChanged))
     ) {
       const title = util.format('%d%% Passed', 100);
       const message = util.format(
@@ -64,11 +58,13 @@ export default class NotifyReporter extends BaseReporter {
       );
 
       notifier.notify({icon, message, title});
-      this._context.previousSuccess = true;
-      this._context.firstRun = false;
     } else if (
       !success &&
-      (notifyMode === 'always' || notifyMode === 'failure' || failureChange)
+      (notifyMode === 'always' ||
+        notifyMode === 'failure' ||
+        notifyMode === 'failure-change' ||
+        (notifyMode === 'change' && statusChanged) ||
+        (notifyMode === 'failure-change' && statusChanged))
     ) {
       const failed = result.numFailedTests / result.numTotalTests;
 
@@ -105,8 +101,8 @@ export default class NotifyReporter extends BaseReporter {
           }
         },
       );
-      this._context.previousSuccess = false;
-      this._context.firstRun = false;
     }
+    this._context.previousSuccess = success;
+    this._context.firstRun = false;
   }
 }
