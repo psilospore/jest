@@ -1,0 +1,11 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`test always 1`] = `
+Array [
+  Object {
+    "icon": "SUCCESS_ICON",
+    "message": "✅ 3 tests passed",
+    "title": "100% Passed",
+  },
+]
+`;
