@@ -64,7 +64,7 @@ export default class NotifyReporter extends BaseReporter {
         notifyMode === 'failure' ||
         notifyMode === 'failure-change' ||
         (notifyMode === 'change' && statusChanged) ||
-        (notifyMode === 'failure-change' && statusChanged))
+        (notifyMode === 'success-change' && statusChanged))
     ) {
       const failed = result.numFailedTests / result.numTotalTests;
 

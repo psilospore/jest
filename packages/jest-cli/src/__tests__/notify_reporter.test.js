@@ -11,9 +11,10 @@
 import TestScheduler from '../test_scheduler';
 import NotifyReporter from '../reporters/notify_reporter';
 import type {TestSchedulerContext} from '../test_scheduler';
+import type {AggregatedResult} from '../../../../types/TestResult';
+import type {Jest as jest} from '../../../../types/Jest';
 
-const SUCCESS_ICON_PATH = '/assets/jest_logo.png';
-const FAILURE_ICON_PATH = 'TODO';
+const ICON_PATH = '/assets/jest_logo.png';
 
 jest.mock('../reporters/default_reporter');
 jest.mock('node-notifier', () => ({
@@ -36,18 +37,35 @@ const aggregatedResultsSuccess: AggregatedResult = {
   success: true,
 };
 
-const iconDir = path => {
-  if (path.endsWith(SUCCESS_ICON_PATH)) {
-    return 'SUCCESS_ICON';
-  } else if (path.endsWith(FAILURE_ICON_PATH)) {
-    return 'FAILURE_ICON';
-  } else {
-    return 'ICON_NOT_FOUND';
-  }
+const aggregatedResultsFailure: AggregatedResult = {
+  numFailedTestSuites: 1,
+  numFailedTests: 3,
+  numPassedTestSuites: 0,
+  numPassedTests: 9,
+  numRuntimeErrorTestSuites: 0,
+  numTotalTestSuites: 1,
+  numTotalTests: 3,
+  success: false,
 };
 
+// Simulated sequence of events for NotifyReporter
+const notifyEvents = [
+  aggregatedResultsSuccess,
+  aggregatedResultsFailure,
+  aggregatedResultsSuccess,
+  aggregatedResultsSuccess,
+  aggregatedResultsFailure,
+  aggregatedResultsFailure,
+];
+
+const iconShown = path => path.endsWith(ICON_PATH);
+
 test('.addReporter() .removeReporter()', () => {
-  const scheduler = new TestScheduler({}, {}, initialContext);
+  const scheduler = new TestScheduler(
+    {},
+    {},
+    Object.assign({}, initialContext),
+  );
   const reporter = new NotifyReporter();
   scheduler.addReporter(reporter);
   expect(scheduler._dispatcher._reporters).toContain(reporter);
@@ -55,20 +73,50 @@ test('.addReporter() .removeReporter()', () => {
   expect(scheduler._dispatcher._reporters).not.toContain(reporter);
 });
 
-test('test always', () => {
+const testModes = (notifyMode: string, arl: Array<AggregatedResult>) => {
   const notify = require('node-notifier');
+  notify.notify.mock.calls = [];
 
-  const reporter = new NotifyReporter(
-    {notify: true, notifyMode: 'always'},
-    {},
-    initialContext,
-  );
-  reporter.onRunComplete(new Set(), aggregatedResultsSuccess);
+  let previousContext = initialContext;
+  arl.forEach((ar, i) => {
+    const newContext = Object.assign(previousContext, {
+      firstRun: i === 0,
+      previousSuccess: previousContext.previousSuccess,
+    });
+    const reporter = new NotifyReporter(
+      {notify: true, notifyMode},
+      {},
+      newContext,
+    );
+    previousContext = newContext;
+    reporter.onRunComplete(new Set(), ar);
+  });
+
   expect(
     notify.notify.mock.calls.map(([{icon, message, title}]) => ({
-      icon: iconDir(icon),
+      icon: iconShown(icon),
       message,
       title,
     })),
   ).toMatchSnapshot();
+};
+
+test('test always', () => {
+  testModes('always', notifyEvents);
+});
+
+test('test success', () => {
+  testModes('success', notifyEvents);
+});
+
+test('test change', () => {
+  testModes('change', notifyEvents);
+});
+
+test('test success-change', () => {
+  testModes('success-change', notifyEvents);
+});
+
+test('test failure-change', () => {
+  testModes('failure-change', notifyEvents);
 });
